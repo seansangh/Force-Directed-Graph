@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.8.6/umd/react.production.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.8.6/umd/react-dom.production.min.js"></script>   
+   <script src=" https://unpkg.com/@babel/standalone/babel.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+   <link rel="stylesheet" href="/style.css">
+   <script>
+document.addEventListener('DOMContentLoaded', function(){
+  req= new XMLHttpRequest();
+  req.open('GET','https://raw.githubusercontent.com/DealPete/forceDirected/master/countries.json',true);
+  req.send();
+  req.onload=function(){
+    data=JSON.parse(req.responseText);
+    
+  var w = 1000;
+  var h = 800;
+   
+  var force = d3.layout.force()
+     .charge(-100)
+     .linkDistance(15)
+     .size([w, h])
+     .nodes(data.nodes)
+     .links(data.links)
+     .start();
+  
+  var svg = d3.select('#in')
+      .append('svg')
+      .attr("width", w)
+      .attr("height", h);
+    
+    var img = d3.select("#in").selectAll(".img")
+        .data(data.nodes)
+        .enter()
+        .append('section')
+        .attr("class", "images")
+        .html(function(f){
+          return ("<img src='https://i.imgur.com/TiJ06ht.png' class='flag flag-"+f.code+"' />")
+        })
+        .attr("title", function(d){ return d.country; })
+        .call(force.drag);
+    
+    var link = svg.selectAll(".link")
+        .data(data.links)
+        .enter()
+        .append("line")
+        .attr("class", "links")
+   
+    
+    var node = svg.selectAll(".node")
+        .data(data.nodes)
+        .enter()
+        .append("circle")
+        .attr("class", "nodes")
+        .attr("r", 1);   
+
+    
+    force.on("tick", function(){
+      link.attr("x1", function(d){ return d.source.x; })
+          .attr("y1", function(d){ return d.source.y; })
+          .attr("x2", function(d){ return d.target.x; })
+          .attr("y2", function(d){ return d.target.y; });
+
+      
+      img.attr("style", function(d){ 
+       return ("top:"+(d.y - 10)+"px; left:"+(d.x - 10)+"px"); 
+      });
+      
+      })   
+    
+    
+  }
+})
+
+
+   </script>
+  </head>
+  <body>
+    <div id="out">
+      <h1>Force Directed Graph of State Contiguity</h1>
+    </div>
+
+      <div id="in">
+  <div class="graph">
+  </div>
+      </div>
+  
+    
+  </body>
+</html>
